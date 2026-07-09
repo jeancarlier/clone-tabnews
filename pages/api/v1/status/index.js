@@ -9,8 +9,6 @@ async function status(request, response) {
     const databaseCurrentConnectionsResult = 
     await database.query({ text: "SELECT COUNT(*)::int FROM pg_stat_activity WHERE datName = $1", values: [databaseName] });
 
-    console.log(databaseCurrentConnectionsResult);
-
     if (databaseVersionResult.rowCount === 0 || 
         databaseMaxConnectionsResult.rowCount === 0 ) {
         return response.status(500).json({
