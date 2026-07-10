@@ -3,38 +3,49 @@ import { join } from "node:path";
 import database from "infra/database.js";
 
 export default async function migrations(request, response) {
-    const dbClient = await database.getNewClient();
+  const allowedMethods = ["GET", "POST"];
+  if (!allowedMethods.includes(request.method)) {
+    return response
+      .status(405)
+      .json({ error: `Method "${request.method}"  not allowed` });
+  }
+
+  let dbClient;
+  try {
+    dbClient = await database.getNewClient();
     const baseMigrationOptions = {
-        dbClient: dbClient,
-        dir: join("infra", "migrations"),
-        direction: "up",
-        verbose: true,
-        migrationsTable: "pgmigrations",
+      dbClient: dbClient,
+      dir: join("infra", "migrations"),
+      direction: "up",
+      verbose: true,
+      migrationsTable: "pgmigrations",
     };
 
     if (request.method === "GET") {
-        const pendingMigrations = await migrationRunner({
-            ...baseMigrationOptions,
-            dryRun: true,
-        });
-        await dbClient.end();
-        return response.status(200).json(pendingMigrations);
+      const pendingMigrations = await migrationRunner({
+        ...baseMigrationOptions,
+        dryRun: true,
+      });
+
+      return response.status(200).json(pendingMigrations);
     }
 
     if (request.method === "POST") {
-        const migratedMigrations = await migrationRunner({
-            ...baseMigrationOptions,
-            dryRun: false,
-        });
+      const migratedMigrations = await migrationRunner({
+        ...baseMigrationOptions,
+        dryRun: false,
+      });
 
-        await dbClient.end();
+      if (migratedMigrations.length > 0) {
+        return response.status(201).json(migratedMigrations);
+      }
 
-        if (migratedMigrations.length > 0) {
-            return response.status(201).json(migratedMigrations);
-        }
-
-        return response.status(200).json(migratedMigrations);
+      return response.status(200).json(migratedMigrations);
     }
-
-    return response.status(405).json({ error: "Method not allowed" });
+  } catch (error) {
+    console.log(`Error in the migration execution`);
+    throw error;
+  } finally {
+    await dbClient.end();
+  }
 }
