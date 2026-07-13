@@ -9,14 +9,15 @@
     "services:up": "docker compose -f infra/compose.yaml up -d",
     "services:down": "docker compose -f infra/compose.yaml down",
     "services:stop": "docker compose -f infra/compose.yaml stop",
-    "dev": "npm run services:up &&next dev",
+    "dev": "npm run services:up && npm run waitForPostgres && npm run migration:up && next dev",
     "build": "next build",
     "vercel-build": "next build",
     "lint:check": "prettier --check .",
     "lint:fix": "prettier --write .",
     "migration:create": "node-pg-migrate -m infra/migrations create",
     "migration:up": "node-pg-migrate -m infra/migrations --envPath .env.development up",
-    "migration:down": "node-pg-migrate -m infra/migrations --envPath .env.development down"
+    "migration:down": "node-pg-migrate -m infra/migrations --envPath .env.development down",
+    "waitForPostgres": "node infra/scripts/wait-for-postgres.js"
   },
   "repository": {
     "type": "git",
