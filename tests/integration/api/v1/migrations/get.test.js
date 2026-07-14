@@ -1,9 +1,11 @@
 import database from "infra/database.js";
+import orchestrator from "tests/orchestrator.js"
 
 const baseUrl = process.env.TEST_BASE_URL || "http://localhost:3000";
 
 beforeAll(async () => {
-  await cleanDatabase();
+    await orchestrator.waitForAllServices();
+    await cleanDatabase();
 });
 
 async function cleanDatabase() {

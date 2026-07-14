@@ -1,20 +1,14 @@
 import database from "infra/database.js";
+import orchestrator from "tests/orchestrator.js"
 
 const baseUrl = process.env.TEST_BASE_URL || "http://localhost:3000";
 
 beforeAll(async () => {
-  await cleanDatabase();
+    await orchestrator.waitForAllServices();
+    await cleanDatabase();
 });
 
 async function cleanDatabase() {
-  console.log({
-    host: process.env.POSTGRES_HOST,
-    user: process.env.POSTGRES_USER,
-    password: process.env.POSTGRES_PASSWORD,
-    database: process.env.POSTGRES_DB,
-    port: process.env.POSTGRES_PORT,
-    ssl: process.env.NODE_ENV === "production" ? true : false,
-  });
   await database.query({
     text: "drop schema public cascade; create schema public;",
   });
