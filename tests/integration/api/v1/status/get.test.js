@@ -1,7 +1,7 @@
-import orchestrator from "tests/orchestrator.js"
+import orchestrator from "tests/orchestrator.js";
 
 beforeAll(async () => {
-    await orchestrator.waitForAllServices();
+  await orchestrator.waitForAllServices();
 });
 
 const baseUrl = process.env.TEST_BASE_URL || "http://localhost:3000";
