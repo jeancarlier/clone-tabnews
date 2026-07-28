@@ -33,7 +33,7 @@ commitlint:
   name: commitlint
   runs-on: ubuntu-latest
   steps:
-    - uses: actions/checkout@
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
