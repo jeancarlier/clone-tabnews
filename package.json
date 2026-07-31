@@ -14,7 +14,7 @@
     "vercel-build": "next build",
     "lint:prettier:check": "prettier --check .",
     "lint:prettier:fix": "prettier --write .",
-    "lint:eslint:check": "next lint --dir .",
+    "lint:eslint:check": "eslint .",
     "migration:create": "node-pg-migrate -m infra/migrations create",
     "migration:up": "node-pg-migrate -m infra/migrations --envPath .env.development up",
     "migration:down": "node-pg-migrate -m infra/migrations --envPath .env.development down",
