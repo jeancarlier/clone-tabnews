@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "npm run services:up && npm run services:wait:database && npm run migrations:up && next dev",
     "test": "npm run services:up && npm run services:wait:database && concurrently -n next,jest --hide next -k -s command-jest \"next dev\" \"jest --runInBand\"",
     "test:watch": "jest --watchAll --runInBand",
     "services:up": "docker compose -f infra/compose.yaml up -d",
@@ -13,7 +14,6 @@
     "migrations:create": "node-pg-migrate -m infra/migrations create",
     "migrations:up": "node-pg-migrate -m infra/migrations --envPath .env.development up",
     "migrations:down": "node-pg-migrate -m infra/migrations --envPath .env.development down",
-    "dev": "npm run services:up && npm run services:wait:database && npm run migrations:up && next dev",
     "build": "next build",
     "vercel-build": "next build",
     "lint:prettier:check": "prettier --check .",
