@@ -8,23 +8,35 @@ beforeAll(async () => {
   await cleanDatabase();
 });
 
+describe("POST /api/v1/migrations", () => {
+  describe("Anonymous user", () => {
+    describe("Retrieving pending migrations", () => {
+      test("For the first time", async () => {
+        const response = await fetch(`${baseUrl}/api/v1/migrations`, {
+          method: "POST",
+        });
+        expect(response.status).toBe(201);
+
+        const responseBody = await response.json();
+        expect(Array.isArray(responseBody)).toBe(true);
+        expect(responseBody.length).toBeGreaterThan(0);
+      });
+      test("For the second time", async () => {
+        const response = await fetch(`${baseUrl}/api/v1/migrations`, {
+          method: "POST",
+        });
+        expect(response.status).toBe(200);
+
+        const responseBody = await response.json();
+        expect(Array.isArray(responseBody)).toBe(true);
+        expect(responseBody.length).toBe(0);
+      });
+    });
+  });
+});
+
 async function cleanDatabase() {
   await database.query({
     text: "drop schema public cascade; create schema public;",
   });
 }
-
-test("POST /api/v1/migrations should return status 200", async () => {
-  const response = await fetch(`${baseUrl}/api/v1/migrations`, {
-    method: "POST",
-  });
-  expect(response.status).toBe(201);
-
-  const responseBody = await response.json();
-  expect(Array.isArray(responseBody)).toBe(true);
-
-  const migrationCount = await database.query({
-    text: "SELECT COUNT(*)::int FROM pgmigrations",
-  });
-  expect(migrationCount.rows[0].count).toBe(responseBody.length);
-});
