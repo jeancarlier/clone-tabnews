@@ -15,7 +15,7 @@ export default async function migrations(request, response) {
     dbClient = await database.getNewClient();
     const baseMigrationOptions = {
       dbClient: dbClient,
-      dir: resolve("infra", "migrations"),
+      dir: resolve(process.cwd(), "infra", "migrations"),
       direction: "up",
       verbose: true,
       migrationsTable: "pgmigrations",
