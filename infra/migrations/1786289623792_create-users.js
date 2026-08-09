@@ -6,7 +6,7 @@ exports.up = (pgm) => {
       default: pgm.func("gen_random_uuid()"),
     },
 
-    //
+    // By default Git limits username by 30 chars. We are using the same strategy
     username: {
       type: "varchar(30)",
       notNull: true,
@@ -20,9 +20,9 @@ exports.up = (pgm) => {
       unique: true,
     },
 
-    // Why 72 in length? https://security.stackexchange.com/q/39849
+    // Why 60 in length? https://www.npmjs.com/package/bcrypt#hash-info
     password: {
-      type: "varchar(72)",
+      type: "varchar(60)",
       notNull: true,
     },
 
@@ -30,13 +30,13 @@ exports.up = (pgm) => {
     created_at: {
       type: "timestamptz",
       notNull: true,
-      default: pgm.func("now()"),
+      default: pgm.func("timezone('utc', now())"),
     },
 
     updated_at: {
       type: "timestamp",
       notNull: true,
-      default: pgm.func("now()"),
+      default: pgm.func("timezone('utc', now())"),
     },
   });
 };
