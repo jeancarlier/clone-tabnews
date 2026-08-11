@@ -44,7 +44,8 @@
     "pg": "8.22.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "swr": "^2.5.0"
+    "swr": "^2.5.0",
+    "uuid": "11.1.0"
   },
   "devDependencies": {
     "@commitlint/cli": "19.4.0",
