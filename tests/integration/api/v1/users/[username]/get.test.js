@@ -34,6 +34,7 @@ describe("GET /api/v1/users/[username]", () => {
         id: response2Body.id,
         username: "ExactMatch",
         email: "exact.match@example.com",
+        password: response2Body.password,
         created_at: response2Body.created_at,
         updated_at: response2Body.updated_at,
       });
