@@ -3,57 +3,12 @@ import password from "models/password.js";
 import { ValidationError, NotFoundError } from "infra/errors.js";
 
 async function create(userInputValues) {
-  await validateDuplicateEmail(userInputValues.email);
   await validateDuplicateUsername(userInputValues.username);
+  await validateDuplicateEmail(userInputValues.email);
   await hashPasswordInObject(userInputValues);
 
   const newUser = await runInsertUserQuery(userInputValues);
   return newUser;
-
-  async function validateDuplicateUsername(username) {
-    const results = await database.query({
-      text: `
-        SELECT
-            username
-        FROM
-            users
-        WHERE
-            LOWER(username) = LOWER($1)
-        ;`,
-      values: [username],
-    });
-    if (results.rowCount > 0) {
-      throw new ValidationError({
-        message: "Username já esta sendo utilizado.",
-        action: "Por favor, utilize outro username.",
-      });
-    }
-  }
-
-  async function validateDuplicateEmail(email) {
-    const results = await database.query({
-      text: `
-        SELECT
-            email
-        FROM
-            users
-        WHERE
-            LOWER(email) = LOWER($1)
-        ;`,
-      values: [email],
-    });
-    if (results.rowCount > 0) {
-      throw new ValidationError({
-        message: "Email já esta sendo utilizado.",
-        action: "Por favor, utilize outro email.",
-      });
-    }
-  }
-
-  async function hashPasswordInObject(userInputValues) {
-    const hashedPassword = await password.hash(userInputValues.password);
-    userInputValues.password = hashedPassword;
-  }
 
   async function runInsertUserQuery(userInputValues) {
     const results = await database.query({
@@ -76,6 +31,46 @@ async function create(userInputValues) {
   }
 }
 
+async function validateDuplicateUsername(username) {
+  const results = await database.query({
+    text: `
+        SELECT
+            username
+        FROM
+            users
+        WHERE
+            LOWER(username) = LOWER($1)
+        ;`,
+    values: [username],
+  });
+  if (results.rowCount > 0) {
+    throw new ValidationError({
+      message: "Username já esta sendo utilizado.",
+      action: "Por favor, utilize outro username.",
+    });
+  }
+}
+
+async function validateDuplicateEmail(email) {
+  const results = await database.query({
+    text: `
+        SELECT
+            email
+        FROM
+            users
+        WHERE
+            LOWER(email) = LOWER($1)
+        ;`,
+    values: [email],
+  });
+  if (results.rowCount > 0) {
+    throw new ValidationError({
+      message: "Email já esta sendo utilizado.",
+      action: "Por favor, utilize outro email.",
+    });
+  }
+}
+
 async function findOneByUsername(username) {
   const newUser = await runSelectUserQuery(username);
   return newUser;
@@ -84,7 +79,7 @@ async function findOneByUsername(username) {
     const results = await database.query({
       text: `
         SELECT 
-            username, email, password, created_at, updated_at 
+            id, username, email, password, created_at, updated_at 
         FROM
             users
         where
@@ -106,9 +101,58 @@ async function findOneByUsername(username) {
   }
 }
 
+async function update(username, userInputValues) {
+  const currentUser = await findOneByUsername(username);
+
+  if ("username" in userInputValues) {
+    await validateDuplicateUsername(userInputValues.username);
+  }
+
+  if ("email" in userInputValues) {
+    await validateDuplicateEmail(userInputValues.email);
+  }
+
+  if ("password" in userInputValues) {
+    await hashPasswordInObject(userInputValues);
+  }
+
+  const userWithNewValues = { ...currentUser, ...userInputValues };
+  const updatedUser = await runUpdateQuery(userWithNewValues);
+
+  return updatedUser;
+
+  async function runUpdateQuery(user) {
+    const results = await database.query({
+      text: `
+        UPDATE 
+          Users 
+        SET 
+            username = $2,
+            email = $3,
+            password = $4,
+            updated_at = timezone('utc', now())
+        WHERE 
+          id = $1
+        RETURNING
+            *
+        ;`,
+      values: [user.id, user.username, user.email, user.password],
+    });
+
+    return results.rows[0];
+  }
+}
+
+async function hashPasswordInObject(userInputValues) {
+  const hashedPassword = await password.hash(userInputValues.password);
+  userInputValues.password = hashedPassword;
+}
+
 const user = {
   create,
+  update,
   findOneByUsername,
+  hashPasswordInObject,
 };
 
 export default user;
