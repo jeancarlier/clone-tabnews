@@ -12,6 +12,7 @@ async function query(queryObject) {
       message: "Erro na conexão ou na query.",
       cause: error,
     });
+    console.log(error);
     throw serviceErrorObject;
   } finally {
     await client?.end();
