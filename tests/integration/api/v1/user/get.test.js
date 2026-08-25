@@ -87,6 +87,19 @@ describe("GET /api/v1/user", () => {
         action: "Verifique se este usuário está logado e tente novamente.",
         statusCode: 401,
       });
+
+      // Set-Cookie assertions
+      const pasedSetCookie = setCookieParser(response, {
+        map: true,
+      });
+
+      expect(pasedSetCookie.session_id).toEqual({
+        name: "session_id",
+        value: "invalid",
+        maxAge: -1,
+        path: "/",
+        httpOnly: true,
+      });
     });
 
     test("with expired session", async () => {
@@ -116,6 +129,19 @@ describe("GET /api/v1/user", () => {
         message: "Usuario não possui sessão ativa.",
         action: "Verifique se este usuário está logado e tente novamente.",
         statusCode: 401,
+      });
+
+      // Set-Cookie assertions
+      const pasedSetCookie = setCookieParser(response, {
+        map: true,
+      });
+
+      expect(pasedSetCookie.session_id).toEqual({
+        name: "session_id",
+        value: "invalid",
+        maxAge: -1,
+        path: "/",
+        httpOnly: true,
       });
     });
 
