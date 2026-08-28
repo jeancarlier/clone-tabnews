@@ -79,7 +79,7 @@ async function findOneByUsername(username) {
     const results = await database.query({
       text: `
         SELECT 
-            id, username, email, password, features, created_at, updated_at 
+            *
         FROM
             users
         where
@@ -139,7 +139,7 @@ async function findOneById(userId) {
     const results = await database.query({
       text: `
         SELECT 
-            id, username, email, password, features, created_at, updated_at 
+            *
         FROM
             users
         where
