@@ -28,7 +28,7 @@ describe("GET /api/v1/users/[username]", () => {
         username: "ExactMatch",
         email: "exact.match@example.com",
         password: response2Body.password,
-        features: [],
+        features: ["read:activation_token"],
         created_at: response2Body.created_at,
         updated_at: response2Body.updated_at,
       });
