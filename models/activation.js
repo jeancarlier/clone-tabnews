@@ -43,24 +43,36 @@ Equipe do Caduceus
   });
 }
 
-async function findOneByUserId(userId) {
-  const newToken = await runSelectQuery(userId);
-  return newToken;
+async function findOneValidByToken(sessionToken) {
+  const sessionFound = await runSelectQuery(sessionToken);
 
-  async function runSelectQuery(userId) {
+  return sessionFound;
+
+  async function runSelectQuery(token) {
     const results = await database.query({
       text: `
-                SELECT
-                    *
-                FROM
-                    user_activation_tokens
-                WHERE
-                    user_id = $1
-                LIMIT 
-                    1
-                ;`,
-      values: [userId],
+        SELECT 
+            *
+        FROM
+            user_activation_tokens
+        WHERE
+          id = $1 
+          AND expires_at > NOW()
+          AND used_at is NULL
+        LIMIT
+          1
+        ;`,
+      values: [token],
     });
+
+    if (results.rowCount === 0) {
+      throw new UnauthorizedError({
+        message: "Token invalido ou expirado.",
+        action:
+          "Verifique se este token est'a correto e se a data de expiracão esteja ainda valida.",
+      });
+    }
+
     return results.rows[0];
   }
 }
@@ -68,7 +80,7 @@ async function findOneByUserId(userId) {
 const activation = {
   sendEmailToUser,
   create,
-  findOneByUserId,
+  findOneValidByToken,
 };
 
 export default activation;

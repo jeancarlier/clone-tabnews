@@ -1,5 +1,6 @@
 import orchestrator from "tests/orchestrator.js";
 import activation from "models/activation.js";
+import webserver from "infra/webserver.js";
 
 const baseUrl = process.env.TEST_BASE_URL || "http://localhost:3000";
 
@@ -42,16 +43,21 @@ describe("Use case: Registration Flow (all successful)", () => {
 
   test("Receive activation email", async () => {
     const lastEmail = await orchestrator.getLastEmail();
+    const lastEmailToken = orchestrator.getTokenFromLastEmail(lastEmail.text);
 
-    const activationToken = await activation.findOneByUserId(
-      createUserResponseBody.id,
-    );
+    const validActivationToken =
+      await activation.findOneValidByToken(lastEmailToken);
 
     expect(lastEmail.sender).toBe("<contato@caduceusapp.com.br>");
     expect(lastEmail.recipients[0]).toBe("<registration.flow@example.com>");
     expect(lastEmail.subject).toBe("Ative seu cadastro no Caduceus!");
     expect(lastEmail.text).toContain("RegistrationFlow");
-    expect(lastEmail.text).toContain(activationToken.id);
+    expect(lastEmail.text).toContain(
+      `${webserver.origin}/cadastro/ativar/${lastEmailToken}`,
+    );
+    expect(lastEmailToken).toContain(validActivationToken.id);
+    expect(validActivationToken.user_id).toBe(createUserResponseBody.id);
+    expect(validActivationToken.used_at).toBe(null);
   });
 
   test("Activate account", async () => {});

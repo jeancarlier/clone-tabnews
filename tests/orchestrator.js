@@ -88,6 +88,11 @@ async function getLastEmail() {
   return lastEmailItem;
 }
 
+function getTokenFromLastEmail(emailText) {
+  const match = emailText.match(/[0-9a-fA-F-]{36}/i);
+  return match ? match[0] : null;
+}
+
 const orchestrator = {
   waitForAllServices,
   clearDatabase,
@@ -96,6 +101,7 @@ const orchestrator = {
   createSession,
   deleteAllEmails,
   getLastEmail,
+  getTokenFromLastEmail,
 };
 
 export default orchestrator;
