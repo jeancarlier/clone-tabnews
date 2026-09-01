@@ -219,7 +219,6 @@ async function setFeatures(userId, features) {
   return updatedUser;
 
   async function runUpdateQuery(userId, features) {
-    console.log("Before running update command");
     const results = await database.query({
       text: `
         UPDATE
@@ -234,7 +233,6 @@ async function setFeatures(userId, features) {
       ;`,
       values: [userId, features],
     });
-    console.log(results.rows[0]);
     return results.rows[0];
   }
 }

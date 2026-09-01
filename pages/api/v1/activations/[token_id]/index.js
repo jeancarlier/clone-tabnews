@@ -14,7 +14,6 @@ async function patchHandler(request, response) {
     await activation.findOneValidByToken(activationTokenId);
   const usedActivationToken =
     await activation.markTokenAsUsed(activationTokenId);
-  console.log(usedActivationToken);
 
   await activation.activateUserById(validActivationToken.user_id);
 
