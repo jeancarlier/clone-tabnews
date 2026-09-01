@@ -1,6 +1,7 @@
 import * as cookie from "cookie";
 import session from "models/session.js";
 import user from "models/user.js";
+import authorization from "models/authorization.js";
 import {
   InternalServerError,
   MethodNotAllowedError,
@@ -16,6 +17,7 @@ function onNoMatchHandler(request, response) {
 }
 
 function onErrorHandler(error, request, response) {
+  console.log(error);
   if (
     error instanceof ValidationError ||
     error instanceof NotFoundError ||
@@ -91,7 +93,7 @@ function canRequest(feature) {
   return function canRequestMiddleware(request, response, next) {
     const userTryingToRequest = request.context.user;
 
-    if (userTryingToRequest.features.includes(feature)) {
+    if (authorization.can(userTryingToRequest, feature)) {
       return next();
     }
 
