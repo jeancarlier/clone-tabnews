@@ -1,6 +1,7 @@
 import orchestrator from "tests/orchestrator.js";
 import activation from "models/activation.js";
 import webserver from "infra/webserver.js";
+import user from "models/user.js";
 
 const baseUrl = process.env.TEST_BASE_URL || "http://localhost:3000";
 
@@ -13,6 +14,7 @@ beforeAll(async () => {
 
 describe("Use case: Registration Flow (all successful)", () => {
   let createUserResponseBody;
+  let validActivationToken;
   test("Create user account", async () => {
     const createUserResponse = await fetch(`${baseUrl}/api/v1/users`, {
       method: "POST",
@@ -45,8 +47,7 @@ describe("Use case: Registration Flow (all successful)", () => {
     const lastEmail = await orchestrator.getLastEmail();
     const lastEmailToken = orchestrator.getTokenFromLastEmail(lastEmail.text);
 
-    const validActivationToken =
-      await activation.findOneValidByToken(lastEmailToken);
+    validActivationToken = await activation.findOneValidByToken(lastEmailToken);
 
     expect(lastEmail.sender).toBe("<contato@caduceusapp.com.br>");
     expect(lastEmail.recipients[0]).toBe("<registration.flow@example.com>");
@@ -60,7 +61,23 @@ describe("Use case: Registration Flow (all successful)", () => {
     expect(validActivationToken.used_at).toBe(null);
   });
 
-  test("Activate account", async () => {});
+  test("Activate account", async () => {
+    const activationResponse = await fetch(
+      `http://localhost:3000/api/v1/activations/${validActivationToken.id}`,
+      {
+        method: "PATCH",
+      },
+    );
+
+    expect(activationResponse.status).toBe(200);
+
+    const activationResponseBody = await activationResponse.json();
+
+    expect(Date.parse(activationResponseBody.used_at)).not.toBeNaN();
+
+    const activatedUser = await user.findOneByUsername("RegistrationFlow");
+    expect(activatedUser.features).toEqual(["create:session"]);
+  });
 
   test("Login", async () => {});
 
