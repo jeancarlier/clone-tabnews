@@ -2,6 +2,8 @@ import email from "infra/email.js";
 import database from "infra/database.js";
 import webserver from "infra/webserver.js";
 import user from "models/user.js";
+import authorization from "./authorization.js";
+import { NotFoundError, ForbiddenError } from "infra/errors.js";
 
 const EXPIRATION_IN_MILLISECONDS = 60 * 15 * 1000; // 15 min
 
@@ -44,12 +46,12 @@ Equipe do Caduceus
   });
 }
 
-async function findOneValidByToken(sessionToken) {
-  const sessionFound = await runSelectQuery(sessionToken);
+async function findOneValidById(tokenId) {
+  const sessionFound = await runSelectQuery(tokenId);
 
   return sessionFound;
 
-  async function runSelectQuery(token) {
+  async function runSelectQuery(tokenId) {
     const results = await database.query({
       text: `
         SELECT 
@@ -63,14 +65,14 @@ async function findOneValidByToken(sessionToken) {
         LIMIT
           1
         ;`,
-      values: [token],
+      values: [tokenId],
     });
 
     if (results.rowCount === 0) {
-      throw new UnauthorizedError({
-        message: "Token invalido ou expirado.",
-        action:
-          "Verifique se este token est'a correto e se a data de expiracão esteja ainda valida.",
+      throw new NotFoundError({
+        message:
+          "O token de ativação utilizado não foi encontrado no sistema ou expirou.",
+        action: "Faça um novo cadastro.",
       });
     }
 
@@ -102,7 +104,16 @@ async function markTokenAsUsed(activationTokenId) {
   }
 }
 
-async function activateUserById(userId) {
+async function activateUserByUserId(userId) {
+  const userToActivate = await user.findOneById(userId);
+
+  if (!authorization.can(userToActivate, "read:activation_token")) {
+    throw new ForbiddenError({
+      message: "Você não pode mais utilizar tokens de ativação.",
+      action: "Entre em contato com o suporte.",
+    });
+  }
+
   const activatedUser = await user.setFeatures(userId, [
     "create:session",
     "read:session",
@@ -113,9 +124,10 @@ async function activateUserById(userId) {
 const activation = {
   sendEmailToUser,
   create,
-  findOneValidByToken,
+  findOneValidById,
   markTokenAsUsed,
-  activateUserById,
+  activateUserByUserId,
+  EXPIRATION_IN_MILLISECONDS,
 };
 
 export default activation;

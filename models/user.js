@@ -78,9 +78,7 @@ async function validateDuplicateEmail(email) {
 }
 
 async function findOneByUsername(username) {
-  console.log(username);
   const newUser = await runSelectUserQuery(username);
-  console.log(newUser);
   return newUser;
 
   async function runSelectUserQuery(username) {

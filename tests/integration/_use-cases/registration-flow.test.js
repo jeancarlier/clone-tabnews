@@ -12,10 +12,11 @@ beforeAll(async () => {
   await orchestrator.deleteAllEmails();
 });
 
-describe("Use case: Registration Flow (all successful)", () => {
+describe.only("Use case: Registration Flow (all successful)", () => {
   let createUserResponseBody;
-  let validActivationToken;
+  let activationTokenId;
   let createSessionsResponseBody;
+
   test("Create user account", async () => {
     const createUserResponse = await fetch(`${baseUrl}/api/v1/users`, {
       method: "POST",
@@ -46,25 +47,28 @@ describe("Use case: Registration Flow (all successful)", () => {
 
   test("Receive activation email", async () => {
     const lastEmail = await orchestrator.getLastEmail();
-    const lastEmailToken = orchestrator.getTokenFromLastEmail(lastEmail.text);
-
-    validActivationToken = await activation.findOneValidByToken(lastEmailToken);
 
     expect(lastEmail.sender).toBe("<contato@caduceusapp.com.br>");
     expect(lastEmail.recipients[0]).toBe("<registration.flow@example.com>");
     expect(lastEmail.subject).toBe("Ative seu cadastro no Caduceus!");
     expect(lastEmail.text).toContain("RegistrationFlow");
+
+    activationTokenId = orchestrator.getTokenFromLastEmail(lastEmail.text);
+
     expect(lastEmail.text).toContain(
-      `${webserver.origin}/cadastro/ativar/${lastEmailToken}`,
+      `${webserver.origin}/cadastro/ativar/${activationTokenId}`,
     );
-    expect(lastEmailToken).toContain(validActivationToken.id);
-    expect(validActivationToken.user_id).toBe(createUserResponseBody.id);
-    expect(validActivationToken.used_at).toBe(null);
+
+    const activationTokenObject =
+      await activation.findOneValidById(activationTokenId);
+
+    expect(activationTokenObject.user_id).toBe(createUserResponseBody.id);
+    expect(activationTokenObject.used_at).toBe(null);
   });
 
   test("Activate account", async () => {
     const activationResponse = await fetch(
-      `http://localhost:3000/api/v1/activations/${validActivationToken.id}`,
+      `${webserver.origin}/api/v1/activations/${activationTokenId}`,
       {
         method: "PATCH",
       },

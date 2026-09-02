@@ -56,15 +56,15 @@ async function runPendingMigrations() {
 async function createUser(userObject) {
   return await user.create({
     username:
-      userObject.username || faker.internet.username().replace(/[_.-]/g, ""),
-    email: userObject.email || faker.internet.email(),
-    password: userObject.password || "validPassword",
-    features: userObject.features || [],
+      userObject?.username || faker.internet.username().replace(/[_.-]/g, ""),
+    email: userObject?.email || faker.internet.email(),
+    password: userObject?.password || "validPassword",
+    features: userObject?.features || [],
   });
 }
 
 async function activateUser(inactiveUser) {
-  return await activation.activateUserById(inactiveUser.id);
+  return await activation.activateUserByUserId(inactiveUser.id);
 }
 
 async function createSession(userId) {
