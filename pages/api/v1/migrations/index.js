@@ -13,7 +13,6 @@ export default router.handler(controller.errorHandlers);
 
 async function getHandler(request, response) {
   const userTryingToGet = request.context.user;
-  console.log("User trying to get pending migrations:", userTryingToGet);
   const pendingMigrations = await migrator.listPendingMigrations();
 
   const secureOutputValues = authorization.filterOutput(
