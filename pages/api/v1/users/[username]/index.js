@@ -15,19 +15,24 @@ export default router.handler(controller.errorHandlers);
 async function getHandler(request, response) {
   const username = request.query.username;
   const userFound = await users.findOneByUsername(username);
-  return response.status(200).json(userFound);
+  const userTryingToGet = request.context.user;
+
+  const secureOutputValues = authorization.filterOutput(
+    userTryingToGet,
+    "read:user",
+    userFound,
+  );
+
+  return response.status(200).json(secureOutputValues);
 }
 
 async function patchHandler(request, response) {
-  console.log("PATCH /api/v1/users/[username] called with body:", request.body);
   const username = request.query.username;
   const userInputValues = request.body;
 
   const userTryingToPatch = request.context.user;
   const targetUser = await users.findOneByUsername(username);
 
-  console.log("User trying to patch:", userTryingToPatch);
-  console.log("Target user:", targetUser);
   if (!authorization.can(userTryingToPatch, "update:user", targetUser)) {
     console.log("User trying to patch does not have permission.");
     throw new ForbiddenError({
@@ -36,12 +41,18 @@ async function patchHandler(request, response) {
         "Verifique se você possui a feature necessária para atualizar outro usuário.",
     });
   }
-  console.log("User trying to patch has permission. Proceeding with update.");
 
   if (!targetUser) {
     return response.status(404).json({ error: "User not found" });
   }
 
   const updatedUser = await users.update(username, userInputValues);
-  return response.status(200).json(updatedUser);
+
+  const secureOutputValues = authorization.filterOutput(
+    userTryingToPatch,
+    "read:user",
+    updatedUser,
+  );
+
+  return response.status(200).json(secureOutputValues);
 }

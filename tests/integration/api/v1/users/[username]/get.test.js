@@ -1,3 +1,4 @@
+import { version as uuidVersion } from "uuid";
 import orchestrator from "tests/orchestrator.js";
 
 const baseUrl = process.env.TEST_BASE_URL || "http://localhost:3000";
@@ -26,12 +27,16 @@ describe("GET /api/v1/users/[username]", () => {
       expect(response2Body).toEqual({
         id: response2Body.id,
         username: "ExactMatch",
-        email: "exact.match@example.com",
-        password: response2Body.password,
         features: ["read:activation_token"],
         created_at: response2Body.created_at,
         updated_at: response2Body.updated_at,
       });
+
+      expect(uuidVersion(response2Body.id)).toBe(4);
+      expect(Date.parse(response2Body.created_at)).not.toBeNaN();
+      expect(Date.parse(response2Body.updated_at)).not.toBeNaN();
+
+      expect(response2Body.updated_at > response2Body.created_at).toBe(true);
     });
 
     test("with case mismatch", async () => {
@@ -41,8 +46,23 @@ describe("GET /api/v1/users/[username]", () => {
         password: "password123",
       });
 
-      const response2 = await fetch(`${baseUrl}/api/v1/users/differentmatch`);
-      expect(response2.status).toBe(200);
+      const response = await fetch(`${baseUrl}/api/v1/users/differentmatch`);
+      expect(response.status).toBe(200);
+
+      const responseBody = await response.json();
+      expect(responseBody).toEqual({
+        id: responseBody.id,
+        username: "DifferentMatch",
+        features: ["read:activation_token"],
+        created_at: responseBody.created_at,
+        updated_at: responseBody.updated_at,
+      });
+
+      expect(uuidVersion(responseBody.id)).toBe(4);
+      expect(Date.parse(responseBody.created_at)).not.toBeNaN();
+      expect(Date.parse(responseBody.updated_at)).not.toBeNaN();
+
+      expect(responseBody.updated_at > responseBody.created_at).toBe(true);
     });
 
     test("with non existent username", async () => {
