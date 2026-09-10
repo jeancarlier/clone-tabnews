@@ -1,20 +1,15 @@
 import nodemailer from "nodemailer";
 import { ServiceError } from "infra/errors.js";
 
-const transportOptions = {
+const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_SMTP_HOST,
-  port: process.env.EMAIL_SMTP_PORT ? Number(process.env.EMAIL_SMTP_PORT) : undefined,
-  secure: process.env.NODE_ENV === "production",
-};
-
-if (process.env.EMAIL_SMTP_USER && process.env.EMAIL_SMTP_PASSWORD) {
-  transportOptions.auth = {
+  port: process.env.EMAIL_SMTP_PORT,
+  auth: {
     user: process.env.EMAIL_SMTP_USER,
-    pass: process.env.EMAIL_SMTP_PASSWORD,
-  };
-}
-
-const transporter = nodemailer.createTransport(transportOptions);
+    password: process.env.EMAIL_SMTP_PASSWORD,
+  },
+  secure: process.env.NODE_ENV === "production" ? true : false,
+});
 
 async function send(mailOptions) {
   try {
