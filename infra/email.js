@@ -1,6 +1,8 @@
 import nodemailer from "nodemailer";
 import { ServiceError } from "infra/errors.js";
 
+console.log("BEFORE CREATE TRANSPORT");
+
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_SMTP_HOST,
   port: process.env.EMAIL_SMTP_PORT,
