@@ -1,17 +1,31 @@
 import nodemailer from "nodemailer";
+import { ServiceError } from "infra/errors.js";
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_SMTP_HOST,
   port: process.env.EMAIL_SMTP_PORT,
   auth: {
     user: process.env.EMAIL_SMTP_USER,
-    password: process.env.EMAIL_SMTP_PASSWORD,
+    pass: process.env.EMAIL_SMTP_PASSWORD,
   },
-  secure: process.env.NODE_ENV === "production" ? true : false,
+  secure:
+    process.env.NODE_ENV === "production" || process.env.NODE_ENV === "preview"
+      ? true
+      : false,
 });
 
 async function send(mailOptions) {
-  await transporter.sendMail(mailOptions);
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    throw new ServiceError({
+      message: "Falha ao enviar e-mail.",
+      action:
+        "Verifique se o serviço de email está ativo e se as credenciais estão corretas.",
+      cause: error,
+      context: mailOptions,
+    });
+  }
 }
 
 const email = {

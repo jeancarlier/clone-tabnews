@@ -92,7 +92,6 @@ async function expireById(sessionId) {
   return expiredSession;
 
   async function runUpdateQuery(sessionId) {
-    console.log(sessionId);
     const results = await database.query({
       text: `
         UPDATE
@@ -107,8 +106,6 @@ async function expireById(sessionId) {
       ;`,
       values: [sessionId],
     });
-
-    console.log(results);
 
     return results.rows[0];
   }
