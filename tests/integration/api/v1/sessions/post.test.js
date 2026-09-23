@@ -2,8 +2,9 @@ import orchestrator from "tests/orchestrator.js";
 import { version as uuidVersion } from "uuid";
 import session from "models/session.js";
 import setCookieParser from "set-cookie-parser";
+import webserver from "infra/webserver.js";
 
-const baseUrl = process.env.TEST_BASE_URL || "http://localhost:3000";
+const baseUrl = process.env.TEST_BASE_URL || webserver.origin;
 
 beforeAll(async () => {
   await orchestrator.waitForAllServices();
@@ -149,6 +150,7 @@ describe("POST /api/v1/sessions", () => {
         maxAge: session.EXPIRATION_IN_MILLISENCONDS / 1000,
         path: "/",
         httpOnly: true,
+        sameSite: "Lax",
       });
     });
   });

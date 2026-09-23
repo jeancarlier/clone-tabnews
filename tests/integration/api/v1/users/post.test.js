@@ -2,8 +2,9 @@ import orchestrator from "tests/orchestrator.js";
 import { version as uuidVersion } from "uuid";
 import user from "models/user.js";
 import password from "models/password.js";
+import webserver from "infra/webserver.js";
 
-const baseUrl = process.env.TEST_BASE_URL || "http://localhost:3000";
+const baseUrl = process.env.TEST_BASE_URL || webserver.origin;
 
 beforeAll(async () => {
   await orchestrator.waitForAllServices();
@@ -53,7 +54,7 @@ describe("POST /api/v1/users", () => {
       expect(correctPasswordMatch).toBe(true);
       expect(incorrectPasswordMatch).toBe(false);
     });
-    test("with duplicated email", async () => {
+    test("with duplicated `email`", async () => {
       const response1 = await fetch(`${baseUrl}/api/v1/users`, {
         method: "POST",
         headers: {
@@ -89,7 +90,7 @@ describe("POST /api/v1/users", () => {
         statusCode: 400,
       });
     });
-    test("with duplicated username", async () => {
+    test("with duplicated `username`", async () => {
       const response1 = await fetch(`${baseUrl}/api/v1/users`, {
         method: "POST",
         headers: {
@@ -131,7 +132,7 @@ describe("POST /api/v1/users", () => {
     test("with unique and valid data", async () => {
       const user1 = await orchestrator.createUser();
       await orchestrator.activateUser(user1);
-      const user1SessionObject = await orchestrator.createSession(user1.id);
+      const user1SessionObject = await orchestrator.createSession(user1);
 
       const user2Response = await fetch(`${baseUrl}/api/v1/users`, {
         method: "POST",

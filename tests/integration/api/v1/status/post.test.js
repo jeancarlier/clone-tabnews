@@ -1,10 +1,11 @@
 import orchestrator from "tests/orchestrator.js";
+import webserver from "infra/webserver.js";
 
 beforeAll(async () => {
   await orchestrator.waitForAllServices();
 });
 
-const baseUrl = process.env.TEST_BASE_URL || "http://localhost:3000";
+const baseUrl = process.env.TEST_BASE_URL || webserver.origin;
 
 describe("POST /api/v1/status", () => {
   describe("Anonymous user", () => {

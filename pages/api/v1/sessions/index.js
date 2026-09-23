@@ -17,7 +17,7 @@ export default router.handler(controller.errorHandlers);
 async function postHandler(request, response) {
   const usersInputValues = request.body;
 
-  const authenticatedUser = await authentication.getAuthenticatedUser(
+  const authenticatedUser = await authentication.getUser(
     usersInputValues.email,
     usersInputValues.password,
   );

@@ -3,7 +3,7 @@ import activation from "models/activation.js";
 import webserver from "infra/webserver.js";
 import user from "models/user.js";
 
-const baseUrl = process.env.TEST_BASE_URL || "http://localhost:3000";
+const baseUrl = process.env.TEST_BASE_URL || webserver.origin;
 
 beforeAll(async () => {
   await orchestrator.waitForAllServices();
@@ -88,7 +88,7 @@ describe("Use case: Registration Flow (all successful)", () => {
 
   test("Login", async () => {
     const createSessionsResponse = await fetch(
-      "http://localhost:3000/api/v1/sessions",
+      `${webserver.origin}/api/v1/sessions`,
       {
         method: "POST",
         headers: {
@@ -109,7 +109,7 @@ describe("Use case: Registration Flow (all successful)", () => {
   });
 
   test("Get user information", async () => {
-    const userResponse = await fetch("http://localhost:3000/api/v1/user", {
+    const userResponse = await fetch(`${webserver.origin}/api/v1/user`, {
       headers: {
         cookie: `session_id=${createSessionsResponseBody.token}`,
       },
