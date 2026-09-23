@@ -3,6 +3,8 @@ import webserver from "infra/webserver.js";
 
 beforeAll(async () => {
   await orchestrator.waitForAllServices();
+  await orchestrator.clearDatabase();
+  await orchestrator.runPendingMigrations();
 });
 
 const baseUrl = process.env.TEST_BASE_URL || webserver.origin;
