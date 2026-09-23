@@ -53,7 +53,7 @@ describe("POST /api/v1/users", () => {
       expect(correctPasswordMatch).toBe(true);
       expect(incorrectPasswordMatch).toBe(false);
     });
-    test("with duplicated email", async () => {
+    test("with duplicated `email`", async () => {
       const response1 = await fetch(`${baseUrl}/api/v1/users`, {
         method: "POST",
         headers: {
@@ -89,7 +89,7 @@ describe("POST /api/v1/users", () => {
         statusCode: 400,
       });
     });
-    test("with duplicated username", async () => {
+    test("with duplicated `username`", async () => {
       const response1 = await fetch(`${baseUrl}/api/v1/users`, {
         method: "POST",
         headers: {
