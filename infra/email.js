@@ -1,26 +1,23 @@
-//import nodemailer from "nodemailer";
+import nodemailer from "nodemailer";
 import { ServiceError } from "infra/errors.js";
-import { Resend } from "resend";
+//import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+//const resend = new Resend(process.env.RESEND_API_KEY);
 
-/*const transporter = nodemailer.createTransport({
+const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_SMTP_HOST,
   port: process.env.EMAIL_SMTP_PORT,
   auth: {
     user: process.env.EMAIL_SMTP_USER,
     pass: process.env.EMAIL_SMTP_PASSWORD,
   },
-  secure:
-    process.env.NODE_ENV === "production" || process.env.NODE_ENV === "preview"
-      ? true
-      : false,
-});*/
+  secure: process.env.NODE_ENV === "production" ? true : false,
+});
 
 async function send(mailOptions) {
   try {
-    //await transporter.sendMail(mailOptions);
-    await resend.emails.send(mailOptions);
+    await transporter.sendMail(mailOptions);
+    //await resend.emails.send(mailOptions);
   } catch (error) {
     throw new ServiceError({
       message: "Falha ao enviar e-mail.",
