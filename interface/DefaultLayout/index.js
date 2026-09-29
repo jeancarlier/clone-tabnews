@@ -11,9 +11,7 @@ export default function DefaultLayout({
   metadata = {},
   contentWidth,
 }) {
-  console.log("ContentWidth: " + contentWidth);
   const extraContentClassName = contentWidthClasses[contentWidth];
-  console.log("Extra content class name: " + extraContentClassName);
   return (
     <>
       <Head>
@@ -30,7 +28,7 @@ export default function DefaultLayout({
         </Header.Item>
 
         <Header.Item>
-          <Header.Link href="/Login">Login</Header.Link>
+          <Header.Link href="/login">Login</Header.Link>
         </Header.Item>
 
         <Header.Item>
