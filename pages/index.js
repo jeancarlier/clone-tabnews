@@ -6,7 +6,6 @@ function Home() {
   const loggedUser = useStoredUser();
 
   useEffect(() => {
-    console.log(loggedUser);
     if (loggedUser === null) {
       window.location.replace("/login");
     }
@@ -21,6 +20,7 @@ function Home() {
     >
       <h3>Bem vindo {loggedUser?.username || "-"}</h3>
       <h1>Cuidando, controlando e aprimorando a saúde do seu paciente</h1>
+      <h3>Bem vindo {loggedUser || "-"}</h3>
     </DefaultLayout>
   );
 }
