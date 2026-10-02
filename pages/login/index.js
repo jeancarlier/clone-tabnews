@@ -1,10 +1,18 @@
 import DefaultLayout from "interface/DefaultLayout";
 import { TextInput, Stack, FormControl, Button } from "@primer/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useStoredUser } from "pages/api/v1/common/useStoredUser";
+import { setStoredUser } from "pages/api/v1/common/localStorage";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const user = useStoredUser();
+
+  useEffect(() => {
+    if (user) window.location.replace("/");
+  }, [user]);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -19,8 +27,15 @@ export default function LoginPage() {
     });
 
     if (response.status === 201) {
-      console.log("Session created. Check the cookie!");
+      const user = await getUser();
+      setStoredUser(user);
     }
+  }
+
+  async function getUser() {
+    const response = await fetch("/api/v1/user");
+    const responseBody = response.json();
+    return responseBody;
   }
 
   return (
