@@ -19,8 +19,8 @@ function Home() {
           "Cuidando, controlando e aprimorando a saúde do seu paciente",
       }}
     >
-      <h1>Cuidando, controlando e aprimorando a saúde do seu paciente</h1>
       <h3>Bem vindo {loggedUser?.username || "-"}</h3>
+      <h1>Cuidando, controlando e aprimorando a saúde do seu paciente</h1>
     </DefaultLayout>
   );
 }
