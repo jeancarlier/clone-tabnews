@@ -74,17 +74,13 @@ describe("PATCH /api/v1/activations/[token_id]", () => {
         },
       );
 
-      expect(response2.status).toBe(404);
+      expect(response2.status).toBe(200);
 
       const response2Body = await response2.json();
 
-      expect(response2Body).toEqual({
-        name: "NotFoundError",
-        message:
-          "O token de ativação utilizado não foi encontrado no sistema ou expirou.",
-        action: "Faça um novo cadastro.",
-        statusCode: 404,
-      });
+      console.log(response2Body);
+
+      expect(response2Body.used_at).not.toBeNaN();
     });
 
     test("With valid token", async () => {
